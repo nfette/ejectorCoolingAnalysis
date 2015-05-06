@@ -4,6 +4,12 @@
 
 $UnitSystem SI MASS DEG KPA C KJ
 
+"TODO:
+* Make a diagram of state points.
+* Remove duplicate labels for states.
+* Remove duplicate equations for pump work and generator heat input.
+"
+
 "State locations:
 
 c condensor inlet
