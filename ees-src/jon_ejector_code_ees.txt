@@ -34,11 +34,9 @@ p_e = P_sat(fluid$, T=T_e)
 fluid$ = 'water'
 
 m_dot_g = 0.0063 [kg/s]
-m_dot_e = 0.00211 [kg/s]
+{m_dot_e = 0.00211 [kg/s]}
 
-h_g = enthalpy(fluid$,T=T_g,x=0)
-
-s_m = entropy(fluid$, h = h_m, P = P_e)
+h_g = enthalpy(fluid$,T=T_g, x = 1.0)
 
 h_e = enthalpy(fluid$,T = T_e, x = 1.0)
 
@@ -58,31 +56,13 @@ eta_entr = 0.7
 
 eta_diff = 0.7
 
-{Q_e = 5 [kW]}
+Q_e = 5 [kW]
 
 "Conservation of mass"
 m_dot_c = m_dot_g + m_dot_e
 
 "Conservation of energy"
 (m_dot_g * h_g) + (m_dot_e * h_e) = (m_dot_c) * h_c
-
-"Kinetic energies"
-KE_specific_nozzle_isentropic = (h_g - h_nozz_ex_is)
-KE_specific_nozzle_exit = (h_g - h_nozz_ex)
-KE_specific_mixture = (h_c - h_m)
-
-"Nozzle efficiency"
-eta_nozz = KE_specific_nozzle_exit / KE_specific_nozzle_isentropic
-h_nozz_ex_is=enthalpy(fluid$,T=T_e,s=s_g)
-
-"Entrainment efficiency"
-eta_entr * m_dot_g * KE_specific_nozzle_exit = m_dot_c * KE_specific_mixture
-
-"Diffuser efficiency"
-diffuser_var_1 = h_c_is - h_m
-diffuser_var_2 = h_c - h_m
-eta_diff = diffuser_var_1/diffuser_var_2
-h_c_is = enthalpy(fluid$, P = p_c, s = s_m)
 
 "Heat flows and Coefficient of performance"
 Q_c = m_dot_c * (h_c-h_2)
@@ -95,3 +75,24 @@ h_3 = h_2
 COP=Q_e/(Q_g+W_pump)
 
 lambda = m_dot_e / m_dot_g
+
+"Kinetic energies"
+KE_specific_nozzle_isentropic = (h_g - h_nozz_ex_is)
+h_nozz_ex_is=enthalpy(fluid$,P=P_e,s=s_g)
+
+KE_specific_nozzle_exit = (h_g - h_nozz_ex)
+{KE_specific_mixture = (h_c - h_m)}
+
+"Nozzle efficiency"
+eta_nozz = KE_specific_nozzle_exit / KE_specific_nozzle_isentropic
+
+"Entrainment efficiency"
+eta_entr * m_dot_g * KE_specific_nozzle_exit = m_dot_c * KE_specific_mixture
+
+"Diffuser efficiency"
+
+diffuser_var_1 = h_c_is - h_m
+diffuser_var_2 = h_c - h_m
+eta_diff = diffuser_var_1/diffuser_var_2
+s_m = entropy(fluid$, h = h_m, P = P_e)
+h_c_is = enthalpy(fluid$, P = p_c, s = s_m)
