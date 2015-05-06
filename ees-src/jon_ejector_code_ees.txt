@@ -33,7 +33,7 @@ p_e = P_sat(fluid$, T=T_e)
 
 fluid$ = 'water'
 
-m_dot_g = 0.0063 [kg/s]
+{m_dot_g = 0.0063 [kg/s]}
 {m_dot_e = 0.00211 [kg/s]}
 
 h_g = enthalpy(fluid$,T=T_g, x = 1.0)
@@ -81,7 +81,7 @@ KE_specific_nozzle_isentropic = (h_g - h_nozz_ex_is)
 h_nozz_ex_is=enthalpy(fluid$,P=P_e,s=s_g)
 
 KE_specific_nozzle_exit = (h_g - h_nozz_ex)
-{KE_specific_mixture = (h_c - h_m)}
+KE_specific_mixture = (h_c - h_m)
 
 "Nozzle efficiency"
 eta_nozz = KE_specific_nozzle_exit / KE_specific_nozzle_isentropic
