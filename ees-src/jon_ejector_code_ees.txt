@@ -1,0 +1,83 @@
+"Ejector cycle 1D simulation based on Varga et al 2009"
+"Copyright (c) 2015 Jon Sherbeck"
+"Revised 2015-05-05"
+
+"State locations:
+
+c condensor inlet
+2 condensor exit
+g boiler exit
+5 evaporator inlet
+e evaporator exit"
+T_g=110
+
+T_c=35
+
+T_e=10
+
+fluid$='water'
+
+"P_1 = P_2;
+P_2 = Pressure(fluid$,T=T_2,x=0);
+P_3 = P_4;
+P_4 = Pressure(fluid$,T=T_4-5.555,x=0);
+P_5 = P_6
+P_6 = Pressure(fluid$,T=T_6,x=0);"
+
+h_g=enthalpy(fluid$,T=T_g,x=0)
+
+h_c=enthalpy(fluid$,T=T_c,x=0)
+
+h_c_is=enthalpy(fluid$, P = p_c, s = s_m)
+s_m = entropy(fluid$, h = h_m, P = P_e)
+
+h_e=enthalpy(fluid$,T=T_e,x=1.0)
+
+h_nozz_ex_is=enthalpy(fluid$,T=T_e,s=s_g)
+s_g = entropy(fluid$, T=T_g, x=1.0)
+
+h_1=h_2+W_pump/m_dot_g
+
+h_2=enthalpy(fluid$,T=T_c,x=0.0)
+
+{h_m=eta_entr*(m_dot_g*h_g+m_dot_e*h_e)/(m_dot_c)}
+
+p_g=pressure(fluid$,T=T_g,x=0)
+
+p_c=pressure(fluid$,T=T_c,x=0)
+
+P_e = P_sat(fluid$, T=T_e)
+
+eta_nozz=0.85
+
+eta_entr=0.7
+
+eta_diff=0.7
+
+rho_2=density(fluid$,T=T_c,x=0.0)
+
+Q_e=5
+
+(m_dot_g*h_g)+(m_dot_e*h_e)=(m_dot_g+m_dot_e)*h_c
+
+{v_nozz_ex=(2*(h_g-h_nozz_ex))^0.5}
+
+h_nozz_ex=h_g-eta_nozz*(h_g-h_nozz_ex_is)
+
+eta_entr*m_dot_g*(h_g-h_nozz_ex)=(m_dot_g+m_dot_c)*(h_c-h_m)
+
+h_c=h_m+((h_c_is - h_m)/eta_diff)
+
+m_dot_c=m_dot_g+m_dot_e
+
+Q_c=(m_dot_g+m_dot_c)*(h_c-h_2)
+
+Q_g=m_dot_g*(h_g-h_2)
+
+Q_g=m_dot_g*(h_g-h_1)
+
+W_pump=(M_dot_g*(p_g-p_c))/rho_2
+
+m_dot_e=Q_g/(h_e-h_3)
+
+COP=Q_e/(Q_g+W_pump)
