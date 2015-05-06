@@ -2,6 +2,8 @@
 "Copyright (c) 2015 Jon Sherbeck"
 "Revised 2015-05-05"
 
+$UnitSystem SI MASS DEG KPA C KJ
+
 "State locations:
 
 c condensor inlet
@@ -14,6 +16,12 @@ T_g=110
 T_c=35
 
 T_e=10
+
+p_g = P_sat(fluid$,T=T_g)
+
+p_c = P_sat(fluid$,T=T_c)
+
+p_e = P_sat(fluid$, T=T_e)
 
 fluid$='water'
 
@@ -42,11 +50,7 @@ h_2=enthalpy(fluid$,T=T_c,x=0.0)
 
 {h_m=eta_entr*(m_dot_g*h_g+m_dot_e*h_e)/(m_dot_c)}
 
-p_g=pressure(fluid$,T=T_g,x=0)
 
-p_c=pressure(fluid$,T=T_c,x=0)
-
-P_e = P_sat(fluid$, T=T_e)
 
 eta_nozz=0.85
 
