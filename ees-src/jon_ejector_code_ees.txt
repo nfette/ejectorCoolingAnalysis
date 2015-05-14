@@ -1,11 +1,12 @@
 "Ejector cycle 1D simulation based on Varga et al 2009"
 "Copyright (c) 2015 Jon Sherbeck"
-"Revised 2015-05-05"
+"Revised 2015-05-11"
 
 $UnitSystem SI MASS DEG KPA C KJ
 
 "Changelog:
 * 2015-05-11 Added a diagram of state points.
+* 2015-05-11 Renumbered state points with brackets.
 "
 
 "State locations:
@@ -19,36 +20,41 @@ $UnitSystem SI MASS DEG KPA C KJ
 8 = nozz_ex, nozzle exit
 "
 
-T_g = 110 [C]
+T[6] = 110 [C]
 
-T_c = 35 [C]
+T[4] = 35 [C]
 
-T_e = 10 [C]
+T[5] = 10 [C]
 
-p_g = P_sat(fluid$,T=T_g)
+p[6] = P_sat(fluid$,T=T[6])
+p[1] = p[6]
 
-p_c = P_sat(fluid$,T=T_c)
+p[4] = P_sat(fluid$,T=T[4])
+p[2] = p[4]
 
-p_e = P_sat(fluid$, T=T_e)
+p[5] = P_sat(fluid$, T=T[5])
+p[3] = p[5]
+p[7] = p[5]
+p[8] = p[5]
 
 fluid$ = 'water'
 
 {m_dot_g = 0.0063 [kg/s]}
 {m_dot_e = 0.00211 [kg/s]}
 
-h_g = enthalpy(fluid$,T=T_g, x = 1.0)
+h[6] = enthalpy(fluid$,T=T[6], x = 1.0)
 
-h_e = enthalpy(fluid$,T = T_e, x = 1.0)
+h[5] = enthalpy(fluid$,T = T[5], x = 1.0)
 
-s_g = entropy(fluid$, T = T_g, x = 1.0)
+s[6] = entropy(fluid$, T = T[6], x = 1.0)
 
-h_1 = h_2 + W_pump / m_dot_g
+h[1] = h[2] + W_pump / m_dot_g
 
-h_2=enthalpy(fluid$, T = T_c, x = 0.0)
+h[2]=enthalpy(fluid$, T = T[4], x = 0.0)
 
-s_2 = entropy(fluid$, T=T_c, x = 0.0)
+s[2] = entropy(fluid$, T=T[4], x = 0.0)
 
-h_1 = enthalpy(fluid$, P = P_g, s = s_2)
+h[1] = enthalpy(fluid$, P = P[6], s = s[2])
 
 eta_nozz = 0.85
 
@@ -62,26 +68,26 @@ Q_e = 5 [kW]
 m_dot_c = m_dot_g + m_dot_e
 
 "Conservation of energy"
-(m_dot_g * h_g) + (m_dot_e * h_e) = (m_dot_c) * h_c
+(m_dot_g * h[6]) + (m_dot_e * h[5]) = (m_dot_c) * h[4]
 
 "Heat flows and Coefficient of performance"
-Q_c = m_dot_c * (h_c-h_2)
+Q_c = m_dot_c * (h[4]-h[2])
 
-Q_g = m_dot_g * (h_g-h_1)
+Q_g = m_dot_g * (h[6]-h[1])
 
-Q_e = m_dot_e * (h_e-h_3)
-h_3 = h_2
+Q_e = m_dot_e * (h[5]-h[3])
+h[3] = h[2]
 
 COP=Q_e/(Q_g+W_pump)
 
 lambda = m_dot_e / m_dot_g
 
 "Kinetic energies"
-KE_specific_nozzle_isentropic = (h_g - h_nozz_ex_is)
-h_nozz_ex_is=enthalpy(fluid$,P=P_e,s=s_g)
+KE_specific_nozzle_isentropic = (h[6] - h_nozz_ex_is)
+h_nozz_ex_is=enthalpy(fluid$,P=P[5],s=s[6])
 
-KE_specific_nozzle_exit = (h_g - h_nozz_ex)
-KE_specific_mixture = (h_c - h_m)
+KE_specific_nozzle_exit = (h[6] - h[8])
+KE_specific_mixture = (h[4] - h[7])
 
 "Nozzle efficiency"
 eta_nozz = KE_specific_nozzle_exit / KE_specific_nozzle_isentropic
@@ -91,8 +97,8 @@ eta_entr * m_dot_g * KE_specific_nozzle_exit = m_dot_c * KE_specific_mixture
 
 "Diffuser efficiency"
 
-diffuser_var_1 = h_c_is - h_m
-diffuser_var_2 = h_c - h_m
+diffuser_var_1 = h_c_is - h[7]
+diffuser_var_2 = h[4] - h[7]
 eta_diff = diffuser_var_1/diffuser_var_2
-s_m = entropy(fluid$, h = h_m, P = P_e)
-h_c_is = enthalpy(fluid$, P = p_c, s = s_m)
+s[7] = entropy(fluid$, h = h[7], P = P[7])
+h_c_is = enthalpy(fluid$, P = p[4], s = s[7])
