@@ -1,12 +1,13 @@
 "Ejector cycle 1D simulation based on Varga et al 2009"
 "Copyright (c) 2015 Jon Sherbeck"
-"Revised 2015-05-11"
+"Revised 2015-05-13"
 
 $UnitSystem SI MASS DEG KPA C KJ
 
 "Changelog:
 * 2015-05-11 Added a diagram of state points.
 * 2015-05-11 Renumbered state points with brackets.
+* 2015-05-13 Tried different conditions.
 "
 
 "State locations:
@@ -20,9 +21,9 @@ $UnitSystem SI MASS DEG KPA C KJ
 8 = nozz_ex, nozzle exit
 "
 
-T[6] = 110 [C]
+T[6] = 220 [C]
 
-T[4] = 35 [C]
+T[4] = 49 [C]
 
 T[5] = 10 [C]
 
