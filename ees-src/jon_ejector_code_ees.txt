@@ -4,8 +4,8 @@
 
 $UnitSystem SI MASS DEG KPA C KJ
 
-"TODO:
-* Make a diagram of state points.
+"Changelog:
+* 2015-05-11 Added a diagram of state points.
 "
 
 "State locations:
