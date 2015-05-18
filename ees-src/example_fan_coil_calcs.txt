@@ -1,10 +1,10 @@
-{Example of heat exchanger with UA method for air cooling evaporator.
+ï»¿{Example of heat exchanger with UA method for air cooling evaporator.
 Model assumes a subcooled inlet and superheated outlet, which causes trouble.}
 
 $UnitSystem SI MASS DEG KPA C KJ
 
 PROCEDURE LMTD_counterflow(T_c_in, T_c_out, T_h_in, T_h_out: LMTD, DELTAT_1, DELTAT_2)
-{­This function works better, maybe.}
+{This function works better, maybe.}
 	DELTAT_1 := T_h_in - T_c_out
 	DELTAT_2 := T_h_out - T_c_in
 	R := DELTAT_1 / DELTAT_2
