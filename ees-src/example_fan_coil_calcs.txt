@@ -1,0 +1,115 @@
+{Example of heat exchanger with UA method for air cooling evaporator.
+Model assumes a subcooled inlet and superheated outlet, which causes trouble.}
+
+$UnitSystem SI MASS DEG KPA C KJ
+
+PROCEDURE LMTD_counterflow(T_c_in, T_c_out, T_h_in, T_h_out: LMTD, DELTAT_1, DELTAT_2)
+{­This function works better, maybe.}
+	DELTAT_1 := T_h_in - T_c_out
+	DELTAT_2 := T_h_out - T_c_in
+	R := DELTAT_1 / DELTAT_2
+	epsilon := R - 1
+	"If R < 0, then there is a problem because heat is transfered both ways. Muy malo."
+	"EES cannot handle when ratio R crosses over 1.0, so here's an asymptotic approximation."
+	if (abs(epsilon) < 0.1) then
+	LMTD := DELTAT_2 / (1 - 0.5 * epsilon + (1/3) * epsilon ^ 2 - (1/4) * epsilon ^ 3 + (1/5) * epsilon ^ 4 - (1/6) * epsilon ^ 5)
+	else
+	LMTD := (DELTAT_1 - DELTAT_2) / LN(R)
+	endif
+END
+
+"State points:
+0 = subcooled liquid refrigerant in
+1 = refrigerant becomes saturated liquid
+2 = refrigerant becomes saturated vapor
+3 = superheated vapor refrigerant out
+
+4 = room air into coil
+5 = intermediate
+6 = intermediate
+7 = room air out of coil
+"
+
+fluid$ = 'water'
+
+"Specification"
+T_boil_default = 10 [C]
+P_boil = P_sat(fluid$, T=T_boil)
+subcooling = 3 [C]
+
+m_dot_air_default = 1 [kg/s]
+P_room = 100 [kPa]
+T_air_in_default = 25 [C]
+
+"Select one set of equations and comment out the other:"
+"Set 1: Specify design point to output UA and refrigerant mass flow rate"
+{Q_dot_12 = 5 [kW]
+superheating = 5 [C]}
+"Set 2: To allow temperature variation"
+m_dot_HTF=2.01865E-03 [kg/s]
+UA_total=4.09240E-01 [kW/K]
+"Example parameter study: comment out one of these equations."
+T[4] = T_air_in_default
+m_dot_air = m_dot_air_default
+T_boil = T_boil_default
+
+
+P[0] = P_boil
+T[0] = T_boil - subcooling
+h[0] = enthalpy(fluid$, P=P[0], T=T[0])
+
+P[1] = P_boil
+x[1] = 0.0
+T[1] =Temperature(fluid$,P=P[1],x=x[1])
+h[1] =enthalpy(fluid$,P=P[1],x=x[1])
+
+P[2] = P_boil
+x[2] = 1.0
+T[2] =Temperature(fluid$,P=P[2],x=x[2])
+h[2] =enthalpy(fluid$,P=P[2],x=x[2])
+
+P[3] = P_boil
+T[3] = T_boil + superheating
+h[3] = enthalpy(fluid$, P=P[3], T=T[3])
+
+"Air side"
+h[4] = enthalpy(air_ha, T=T[4], P = P[4])
+h[5] = enthalpy(air_ha, T=T[5], P = P[5])
+h[6] = enthalpy(air_ha, T=T[6], P = P[6])
+h[7] = enthalpy(air_ha, T=T[7], P = P[7])
+P[4] = P_room
+P[5] = P_room
+P[6] = P_room
+P[7] = P_room
+
+"
+Schematic denoting direction of flow:
+T[7] <---- T[6] <---- T[5] <---- T[4] (hot air in)
+T[0] ----> T[1] ----> T[2] ----> T[3] (warm refrigerant out)
+"
+
+{Complicated evaporator model. You could remove sections, for example.}
+UA_total = UA_01 + UA_12 + UA_23
+Q_total = Q_dot_01 + Q_dot_12 + Q_dot_23
+
+"Subcooled portion"
+CALL LMTD_counterflow(T[0], T[1], T[6], T[7]: DELTAT_LM01, DELTAT_01_1, DELTAT_01_2)
+Q_dot_01 = UA_01 * DELTAT_LM01
+Q_dot_01 = m_dot_HTF * (h[1] - h[0])
+Q_dot_01 = m_dot_air * (h[6] - h[7])
+
+"Two-phase portion"
+{DELTAT_1 = T[6] - T[1]
+DELTAT_2 = T[5] - T[2]
+DELTAT_LM12 = (DELTAT_2 - DELTAT_1) / LN(DELTAT_2 / DELTAT_1)}
+CALL LMTD_counterflow(T[1], T[2], T[5], T[6]: DELTAT_LM12, DELTAT_12_1, DELTAT_12_2)
+Q_dot_12 = UA_12 * DELTAT_LM12
+Q_dot_12 = m_dot_HTF * (h[2] - h[1])
+Q_dot_12 = m_dot_air * (h[5] - h[6])
+
+"Superheat portion"
+CALL LMTD_counterflow(T[2], T[3], T[4], T[5]: DELTAT_LM23, DELTAT_23_1, DELTAT_23_2)
+Q_dot_23 = UA_23 * DELTAT_LM23
+Q_dot_23 = m_dot_HTF * (h[3] - h[2])
+Q_dot_23 = m_dot_air * (h[4] - h[5])
+
